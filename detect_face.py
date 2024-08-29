@@ -1,41 +1,26 @@
-import cv2
+from flask import Flask, request, jsonify
 import face_recognition
 import joblib
+import cv2
+import numpy as np
+
+app = Flask(__name__)
 
 # Load the trained KNN model
 knn_clf = joblib.load('knn_model.pkl')
 
-# Open the camera
-video_capture = cv2.VideoCapture(0)
+@app.route('/predict', methods=['POST'])
+def predict():
+    file = request.files['image']
+    img = face_recognition.load_image_file(file)
+    img_encoding = face_recognition.face_encodings(img)
 
-while True:
-    # Capture frame-by-frame
-    ret, frame = video_capture.read()
-    
-    # Convert the image from BGR to RGB
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-    # Detect faces in the image
-    face_locations = face_recognition.face_locations(rgb_frame)
-    face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+    if len(img_encoding) == 0:
+        return jsonify({'error': 'No face detected'}), 400
 
-    for face_encoding, face_location in zip(face_encodings, face_locations):
-        # Predict the label (name) of the face
-        matches = knn_clf.predict([face_encoding])
-        name = matches[0]
+    face_encoding = img_encoding[0]
+    matches = knn_clf.predict([face_encoding])
+    return jsonify({'name': matches[0]})
 
-        # Draw rectangle around the face and write the name
-        (top, right, bottom, left) = face_location
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-        cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
-
-    # Display the resulting frame
-    cv2.imshow('Video', frame)
-
-    # Exit the program when 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# Release the camera and close windows
-video_capture.release()
-cv2.destroyAllWindows()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

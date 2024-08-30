@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition</title>
+</head>
+<body>
+    <h1>Face Recognition</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="snap">Take Photo</button>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <div id="result"></div>
+
+    <script>
+        // Access the camera and display the video
+        const video = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+            video.srcObject = stream;
+        });
+
+        // Take a photo when the button is clicked
+        document.getElementById('snap').addEventListener('click', () => {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas to base64 image
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // Send the image to the server for prediction
+            fetch('https://192.168.1.9:5000/predict', {  // Đảm bảo URL này khớp với địa chỉ của máy chủ Flask
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => {
+                console.log(`HTTP Status: ${response.status}`); // Log the HTTP status
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server error: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.error) {
+                    resultDiv.textContent = `Error: ${data.error}`;
+                } else {
+                    resultDiv.textContent = `Name: ${data.name}`;
+                }
+            })
+            .catch(error => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.textContent = `Error: ${error.message}`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
+from flask_cors import CORS  # Import CORS
 import face_recognition
 import joblib
 import numpy as np
@@ -9,10 +9,10 @@ from PIL import Image
 import cv2
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # Cho phép tất cả các nguồn gốc
+CORS(app)  # Cấu hình CORS
 
 # Load the trained KNN model
-knn_clf = joblib.load('D:\@training_face\Deploy_AI_Model\knn_model.pkl')
+knn_clf = joblib.load('knn_model.pkl')
 
 @app.route('/')
 def index():
@@ -48,5 +48,5 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, ssl_context=('D:\@training_face\Deploy_AI_Model\cert\ktx\certificate.pem', 'D:\@training_face\Deploy_AI_Model\cert\ktx\private.pem'))
-    
+    app.run(host='0.0.0.0', port=5000, ssl_context=('certificate.pem', 'private.pem'))
+

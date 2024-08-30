@@ -1,0 +1,20 @@
+[ req ]
+default_bits        = 2048
+default_keyfile     = private.pem
+distinguished_name  = req_distinguished_name
+attributes          = req_attributes
+
+[ req_distinguished_name ]
+countryName          = Country Name (2 letter code)
+countryName_default  = US
+stateOrProvinceName  = State or Province Name (full name)
+stateOrProvinceName_default = California
+localityName         = Locality Name (e.g., city)
+localityName_default = San Francisco
+organizationName     = Organization Name (e.g., company)
+organizationName_default = My Company
+commonName           = Common Name (e.g., fully qualified host name)
+commonName_default   = 192.168.100.40
+commonName_max       = 64
+
+[ req_attributes ]

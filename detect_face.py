@@ -48,5 +48,4 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, ssl_context=('D:\@training_face\Deploy_AI_Model\cert\ktx\certificate.pem', 'D:\@training_face\Deploy_AI_Model\cert\ktx\private.pem'))
-    
+    app.run(host='0.0.0.0', port=5000, ssl_context=('D:\@training_face\Deploy_AI_Model\sefl_certificate.pem', 'D:\@training_face\Deploy_AI_Model\sefl_private.pem'))
